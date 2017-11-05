@@ -1,18 +1,15 @@
 package com.flavio.workit;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,9 +18,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> mAdapter;
     ArrayList<String> strList;
     public static MyDBHelper myDBHelper = null;
-//
-//    public static SQLiteDatabase wDataBase = null;
-
+    AlertDialog actions;
+    String selectedName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +31,11 @@ public class MainActivity extends AppCompatActivity {
             WorkOut wk = new WorkOut("Curl", 20, 20, 4, "Right Angle");
             wk.insertToMyDB(myDBHelper);
         }
-//        createDB();
 
         strList = WorkOut.getDBList(myDBHelper, WorkOut.TABLE_NAME);
         eListView = findViewById(R.id.eListView);
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, strList);
         eListView.setAdapter(mAdapter);
-//        new WorkOut("Curl", 20, 20, 4, "Form").insertToDB(wDataBase);
         updateListView();
 
         eListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -58,9 +52,32 @@ public class MainActivity extends AppCompatActivity {
         eListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                return false;
+                selectedName = strList.get(i);
+                actions.show();
+                return true;
             }
         });
+        DialogInterface.OnClickListener actionListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0: // Delete
+                        WorkOut wk = new WorkOut(selectedName, myDBHelper);
+                        myDBHelper.db.delete(WorkOut.TABLE_NAME, wk.getWhereClause(), null);
+                        updateListView();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Are you sure you want to delete this item?");
+        String[] options = {"Delete"};
+        builder.setItems(options, actionListener);
+        builder.setNegativeButton("Cancel", null);
+        actions = builder.create();
     }
 
     public void addBtn(View view) {
@@ -68,15 +85,12 @@ public class MainActivity extends AppCompatActivity {
         Intent addIntent = new Intent(this, EditActivity.class);
         addIntent.putExtra("Edit", false);
         startActivityForResult(addIntent, 1);
-//        startActivity(addIntent);
-//        Toast.makeText(this, "Msg", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         updateListView();
-        //Do Something
     }
 
     public void updateListView() {
@@ -85,27 +99,3 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 }
-
-/*
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        updateListView(wDataBase);
-//    }
-
-    public void createDB() {
-        wDataBase = this.openOrCreateDatabase("MyWorkout", MODE_PRIVATE, null);
-        wDataBase.execSQL("CREATE TABLE IF NOT EXISTS workout " +
-                "(id integer primary key, name varchar, weight integer, reps integer, sets integer, notes varchar);");
-        File db = getApplicationContext().getDatabasePath("MyWorkout.db");
-        if (!db.exists()) {
-            Toast.makeText(this, "Database Created", Toast.LENGTH_SHORT).show();
-
-        } else {
-            Toast.makeText(this, "Database Missing", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
- */

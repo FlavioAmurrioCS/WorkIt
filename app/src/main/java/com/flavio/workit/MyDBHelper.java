@@ -45,4 +45,6 @@ public class MyDBHelper {
     public boolean isEmpty(String tableName) {
         return getAll(tableName).getCount() == 0;
     }
+
+
 }

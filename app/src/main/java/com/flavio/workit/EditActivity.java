@@ -1,17 +1,13 @@
 package com.flavio.workit;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -54,16 +50,10 @@ public class EditActivity extends AppCompatActivity {
             sets.setText("" + wk.sets);
             reps.setText("" + wk.reps);
             notes.setText("" + wk.notes);
-
-//            Toast.makeText(this, "Updating Exercise", Toast.LENGTH_SHORT).show();
         } else {
             //Adding
             tittle.setText("Add a New Exercise");
-
-//            Toast.makeText(this, "Adding new Exercise", Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     @Override
@@ -84,6 +74,7 @@ public class EditActivity extends AppCompatActivity {
         String mNotes = notes.getText().toString();
         WorkOut wk = new WorkOut(mName, mWeight, mReps, mSets, mNotes);
         if (edit) {
+            wk.name = tittle.getText().toString();
             wk.updateMyDB(MainActivity.myDBHelper);
             //Update Values
         } else {
@@ -91,9 +82,11 @@ public class EditActivity extends AppCompatActivity {
                 Toast.makeText(this, "Duplicate Name Error", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (wk.name.equals("")) {
+                Toast.makeText(this, "Please Enter Name", Toast.LENGTH_SHORT).show();
+                return;
+            }
             wk.insertToMyDB(MainActivity.myDBHelper);
-//            MainActivity.wDataBase.execSQL("INSERT INTO workout (name, weight, reps, sets, notes) VALUES ('" + mName + "', '" + mWeight + "', '" + mReps + "', '" + mSets + "', '" + mNotes + "');");
-            //Add new Exercise
         }
         setResult(RESULT_OK);
         finish();

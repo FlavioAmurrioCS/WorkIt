@@ -1,7 +1,7 @@
 package com.flavio.workit;
 
+import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 
@@ -74,51 +74,23 @@ public class WorkOut {
         mdb.updateTable(TABLE_NAME, getSetClause(), getWhereClause());
     }
 
-    public static ArrayList<String> getDBList(MyDBHelper mdb, String tableName){
+    public static ArrayList<String> getDBList(MyDBHelper mdb, String tableName) {
         ArrayList<String> wList = new ArrayList<>();
         Cursor cursor = mdb.getAll(tableName);
         int nameID = cursor.getColumnIndex("name");
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             wList.add(cursor.getString(nameID));
         }
         return wList;
     }
+
+    public ContentValues getContentValues() {
+        ContentValues cv = new ContentValues();
+        cv.put("name", this.name);
+        cv.put("weight", this.weight);
+        cv.put("reps", this.reps);
+        cv.put("sets", this.sets);
+        cv.put("notes", this.notes);
+        return cv;
+    }
 }
-
-/*
-
-    public WorkOut(String name, SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("SELECT * FROM workout WHERE name = " + name + ";", null);
-        int nameColumn = cursor.getColumnIndex("name");
-        int weightColumn = cursor.getColumnIndex("weight");
-        int repsColumn = cursor.getColumnIndex("reps");
-        int setsColumn = cursor.getColumnIndex("sets");
-        int notesColumn = cursor.getColumnIndex("notes");
-        cursor.moveToFirst();
-        this.name = cursor.getString(nameColumn);
-        this.weight = cursor.getInt(weightColumn);
-        this.reps = cursor.getInt(repsColumn);
-        this.sets = cursor.getInt(setsColumn);
-        this.notes = cursor.getString(notesColumn);
-    }
-
-public void insertToDB(SQLiteDatabase db) {
-        if (!dbContains(this.name))
-            db.execSQL("INSERT INTO workout (name, weight, reps, sets, notes) VALUES ('" + name + "', '" + weight + "', '" + reps + "', '" + sets + "', '" + notes + "');");
-    }
-
-    public void updateDB(SQLiteDatabase db) {
-        db.execSQL("UPDATE workout SET weight = '"
-                + weight + "', reps = '"
-                + reps + "', sets = '"
-                + sets + "', notes = '"
-                + notes + "' WHERE name = " + name + ";");
-    }
-
-    public boolean dbContains(String name) {
-        Cursor cursor = MainActivity.wDataBase.rawQuery("SELECT * FROM workout WHERE name = " + name + ";", null);
-        return cursor.getCount() > 0;
-    }
-
-
- */
